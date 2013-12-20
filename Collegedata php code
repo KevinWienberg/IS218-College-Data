@@ -1,0 +1,742 @@
+<?php
+             
+$program = new program();
+        
+class program
+        {
+           function __construct()
+                {
+                        $page = 'homepage';        
+                        $arg = NULL;
+                        if(isset($_REQUEST['page']))         
+                        {
+                                $page = $_REQUEST['page'];
+                        }
+                        if(isset($_REQUEST['arg']))         
+                        {
+                                $page = $_REQUEST['arg'];
+                        }
+                        $page = new $page($arg);                
+                }        
+            function __destruct()
+                {
+                        
+                }
+        }
+abstract class page 
+        {
+                        
+           
+           public $content;
+                
+function menu()
+     {
+$menu = '<a href="./collegeproject.php">Home</a>&nbsp';
+$menu .= '<a href="./collegeproject.php?page=Question1">Question 1</a>&nbsp';
+$menu .= '<a href="./collegeproject.php?page=Question2">Question 2</a>&nbsp';
+$menu .= '<a href="./collegeproject.php?page=Question3">Question 3</a>&nbsp';
+$menu .= '<a href="./collegeproject.php?page=Question5">Question 5</a>&nbsp';
+$menu .= '<a href="./collegeproject.php?page=Question6">Question 6</a>&nbsp';
+$menu .= '<a href="./collegeproject.php?page=Question7">Question 7</a>&nbsp';
+$menu .= '<a href="./collegeproject.php?page=Question8">Question 8</a>&nbsp';
+$menu .= '<a href="./collegeproject.php?page=Question9">Question 9</a>&nbsp';
+$menu .= '<a href="./collegeproject.php?page=Question10">Question 10</a>&nbsp';
+$menu .= '<a href="./collegeproject.php?page=Question11">Question 11</a>&nbsp';
+$menu .= '<a href="./collegeproject.php?page=Question12">Question 12</a>&nbsp';
+                       
+           return $menu;
+       }
+                
+             function __construct()
+                {
+                        
+                        if($_SERVER['REQUEST_METHOD'] == 'GET')
+                        {
+                                $this->get();
+                        }
+                        else
+                        {
+                                $this->post();
+                        }
+                        
+                        
+                }
+             function __destruct()
+                {
+                                
+                        $this->content .= $this->menu();        
+                        echo $this->content;        
+                        
+                }
+             function get()
+                {        
+                        $this->content .= $this->menu();
+                }
+             function post()
+                {
+                        
+                }
+        }
+        
+class homepage extends page
+        {
+             function get() 
+			    {
+			    	$this->content .= $this->menu();
+			    }           
+		}
+class question1 extends page
+        {
+                
+	function get()
+        {
+        $this->content .= $this->question1();
+        $this->content .= $this->menu();
+        }             	
+	function question1()
+                {
+                        
+                    $host='localhost';
+                    $user='kpw4';
+                    $pass='kpw4$1234';
+					$dbname='kpw4';
+                        
+                        
+                        try
+                        {
+                                $DBH = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);        
+                                $DBH->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);        
+                                $STH = $DBH->query("select CollegeName.CID, CollegeName.CName, sum(ifnull(enroll2010.enroll,0) + ifnull(enroll2011.enroll,0)) as TOTAL 
+                                FROM CollegeName LEFT OUTER JOIN enroll2010 ON CollegeName.CID=enroll2010.CID 
+                                LEFT OUTER JOIN enroll2011 ON CollegeName.CID=enroll2011.CID 
+                                GROUP by CollegeName.CID, CollegeName.CName 
+                                ORDER by sum(ifnull(enroll2010.enroll,0) + ifnull(enroll2011.enroll,0)) 
+                                DESC limit 25;");
+                        
+                                $STH->setFetchMode(PDO::FETCH_ASSOC);
+                                echo '<table>';
+                                echo '<tr><th>CID</th><th>College Name<th>Total Enrollment</th></tr>';
+                                while($row = $STH->fetch())
+                                {
+                                        echo '<tr>';
+										echo '<td>'.$row['CID'].'</td>';
+                                        echo '<td>'.$row['CName'].'</td>';
+                                        echo '<td>'.$row['TOTAL'].'</td>';
+                                        echo '</tr>';
+                                }
+                                echo '</table>';
+                        }
+                        catch (PDOException $e)
+                        {
+                                echo $e->getMessage();
+                        }
+                }
+        }
+class question2 extends page
+        {
+                
+             function get()
+			{
+                        
+                        $this->content .= $this->menu();
+                }
+               
+             function question2()
+                {
+                        
+                    $host='localhost';
+                    $user='kpw4';
+                    $pass='kpw4$1234';
+					$dbname='kpw4';
+                        
+                    
+                        try
+                        {
+                                $DBH = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);        
+                                $DBH->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);        
+                                $STH = $DBH->query("select CollegeName.CID, CollegeName.CName, sum(ifnull(financial2010.liabilities,0) + ifnull(financial2011.liabilities,0)) as TOTAL
+                                FROM CollegeName LEFT OUTER JOIN financial2010 ON CollegeName.CID=financial2010.CID
+								LEFT OUTER JOIN financial2011 ON CollegeName.CID=financial2011.CID 
+								GROUP by CollegeName.CID, CollegeName.CName 
+								ORDER by sum(ifnull(financial2010.liabilities,0) + ifnull(financial2011.liabilities,0))
+							    DESC limit 25;");
+                        
+                                
+                                $STH->setFetchMode(PDO::FETCH_ASSOC);
+                                echo '<table>';
+                                echo '<tr><th>CID</th><th>College Name</th><th>Total Liabilities</th></tr>';
+                                while($row = $STH->fetch())
+                                {
+                                        echo '<tr>';
+                                        echo '<td>'.$row['CID'].'</td>';
+                                        echo '<td>'.$row['CName'].'</td>';
+                                        echo '<td>'.$row['TOTAL'].'</td>';
+                                        echo '</tr>';
+                                }
+                                echo '</table>';
+                        }
+                        catch (PDOException $e)
+                        {
+                                echo $e->getMessage();
+                        }
+                }
+        }
+class question3 extends page
+        {
+                
+             function get()
+                {
+                        
+                        $this->content .= $this->menu();
+                        $this->content .= $this->question3();
+                }
+               
+             function question3()
+                {
+                       
+                    $host='localhost';
+                    $user='kpw4';
+                    $pass='kpw4$1234';
+					$dbname='kpw4';
+                        
+                        
+                        try
+                        {
+                                $DBH = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);        
+                                $DBH->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);        
+                                $STH = $DBH->query("select CollegeName.CID, CollegeName.CName, sum(ifnull(financial2010.assets,0) + ifnull(financial2011.assets,0)) as TOTAL 
+                                FROM CollegeName LEFT OUTER JOIN financial2010 ON CollegeName.CID=financial2010.CID 
+                                LEFT OUTER JOIN financial2011 ON CollegeName.CID=financial2011.CID 
+                                GROUP by CollegeName.CID, CollegeName.CName 
+                                ORDER by sum(ifnull(financial2010.assets,0) + ifnull(financial2011.assets,0)) 
+                                DESC limit 25;");
+                        
+                                
+                                $STH->setFetchMode(PDO::FETCH_ASSOC);
+                                echo '<table>';
+                                echo '<tr><th>CID</th><th>College Name</th><th>Net Assets</th></tr>';
+                                while($row = $STH->fetch())
+                                {
+                                        echo '<tr>';
+                                        echo '<td>'.$row['CID'].'</td>';
+                                        echo '<td>'.$row['CName'].'</td>';
+                                        echo '<td>'.$row['TOTAL'].'</td>';
+                                        echo '</tr>';
+                                }
+                                echo '</table>';
+                        }
+                        catch (PDOException $e)
+                        {
+                                echo $e->getMessage();
+                        }
+                }
+        }
+class question5 extends page
+        {
+               
+             function get()
+			 
+                { 
+                        $this->content .= $this->menu();
+                        $this->content .= $this->question5();
+                }
+                
+             function question5()
+                {
+                        
+                    $host='localhost';
+                    $user='kpw4';
+                    $pass='kpw4$1234';
+                    $dbname='kpw4';    
+                        
+                        try
+                        {
+                                $DBH = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);        
+                                $DBH->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);        
+                                $STH = $DBH->query("select CollegeName.CID, CollegeName.CName, sum(ifnull(financial2010.revenue,0) + ifnull(financial2011.revenue,0)) as TOTAL 
+                                FROM CollegeName LEFT OUTER JOIN financial2010 ON CollegeName.CID=financial2010.CID 
+                                LEFT OUTER JOIN financial2011 ON CollegeName.CID=financial2011.CID 
+                                GROUP by CollegeName.CID, CollegeName.CName 
+                                ORDER by sum(ifnull(financial2010.revenue,0) + ifnull(financial2011.revenue,0)) 
+                                DESC limit 25;");
+                        
+                                
+                                $STH->setFetchMode(PDO::FETCH_ASSOC);
+                                echo '<table>';
+                                echo '<tr><th>CID<th>College Name</th><th>Total Revenue</th></tr>';
+                                while($row = $STH->fetch())
+                                {
+                                        echo '<tr>';
+                                        echo '<td>'.$row['CID'].'</td>';
+                                        echo '<td>'.$row['CName'].'</td>';
+                                        echo '<td>'.$row['TOTAL'].'</td>';
+                                        echo '</tr>';
+                                }
+                                echo '</table>';
+                        }
+                        catch (PDOException $e)
+                        {
+                                echo $e->getMessage();
+                        }
+                }
+        }
+
+class question6 extends page
+        {
+                
+             function get()
+                { 
+                        $this->content .= $this->menu();
+                        $this->content .= $this->question6();
+                }
+             
+             function question6()
+                {
+                    $host='localhost';
+                    $user='kpw4';
+                    $pass='kpw4$1234';
+                    $dbname='kpw4';
+                        try
+                        {
+                                $DBH = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);        
+                                $DBH->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);        
+                                $STH = $DBH->query("SELECT CollegeName.CName, ((ifnull(financial2011.revenue, 0) + ifnull(financial2010.revenue, 0)) / (ifnull(enroll2011.enroll, 0) + ifnull(enroll2010.enroll, 0))) as TOTAL
+                                FROM CollegeName LEFT OUTER JOIN financial2010 ON CollegeName.CID=financial2010.CID 
+                                LEFT OUTER JOIN financial2011 ON CollegeName.CID=financial2011.CID 
+                                LEFT OUTER JOIN enroll2010 ON CollegeName.CID=enroll2010.CID 
+                                LEFT OUTER JOIN enroll2011 ON CollegeName.CID=enroll2011.CID 
+                                ORDER BY ((ifnull(financial2011.revenue, 0) + ifnull(financial2010.revenue, 0)) / (ifnull(enroll2011.enroll, 0) + ifnull(enroll2010.enroll, 0))) 
+                                DESC limit 25;");
+
+                        
+                                $STH->setFetchMode(PDO::FETCH_ASSOC);
+                                echo '<table>';
+                                echo '<tr><th>College Name</th><th>Total Revenues per Student</th></tr>';
+                                while($row = $STH->fetch())
+                                {
+                                        echo '<tr>';
+                                        echo '<td>'.$row['CName'].'</td>';
+                                        echo '<td>'.$row['TOTAL'].'</td>';
+                                        echo '</tr>';
+                                }
+                                echo '</table>';
+                        }
+                        catch (PDOException $e)
+                        {
+                                echo $e->getMessage();
+                        }
+                }
+        }
+class question7 extends page
+        {
+        	
+             function get()
+                {
+                        $this->content .= $this->menu();
+                        $this->content .= $this->question7();
+                }
+             
+             function question7()
+                {
+                        
+                    $host='localhost';
+					$user='kpw4';
+					$pass='kpw4$1234';
+					$dbname='kpw4';
+
+					try
+                        {
+                                $DBH = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);        
+								$DBH->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);        
+								$STH = $DBH->query("SELECT CollegeName.CName, ((ifnull(financial2011.assets, 0) + ifnull(financial2010.assets, 0)) / (ifnull(enroll2011.enroll, 0) + ifnull(enroll2010.enroll, 0))) as TOTAL
+                                FROM CollegeName LEFT OUTER JOIN financial2010 ON CollegeName.CID=financial2010.CID 
+                                LEFT OUTER JOIN financial2011 ON CollegeName.CID=financial2011.CID 
+                                LEFT OUTER JOIN enroll2010 ON CollegeName.CID=enroll2010.CID 
+                                LEFT OUTER JOIN enroll2011 ON CollegeName.CID=enroll2011.CID 
+                                ORDER BY ((ifnull(financial2011.assets, 0) + ifnull(financial2010.assets, 0)) / (ifnull(enroll2011.enroll, 0) + ifnull(enroll2010.enroll, 0))) 
+                                DESC limit 25;");
+
+                        
+                                $STH->setFetchMode(PDO::FETCH_ASSOC);
+                                echo '<table>';
+                                echo '<tr><th>College Name</th><th>Net Assets per Student</th></tr>';
+                                while($row = $STH->fetch())
+                                {
+                                        echo '<tr>';
+                                        echo '<td>'.$row['CName'].'</td>';
+                                        echo '<td>'.$row['TOTAL'].'</td>';
+                                        echo '</tr>';
+                                }
+                                echo '</table>';
+                        }
+                        catch (PDOException $e)
+                        {
+                                echo $e->getMessage();
+                        }
+                }
+        }
+class question8 extends page
+        {
+            
+             function get()
+                {
+                        $this->content .= $this->menu();
+                        $this->content .= $this->question8();
+                }
+
+             function question8()
+                {
+                    $host='localhost';
+                    $user='kpw4';
+                    $pass='kpw4$1234';
+                    $dbname='kpw4';
+                        try
+                        {
+                                $DBH = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);        
+                                $DBH->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);        
+                                $STH = $DBH->query("SELECT CollegeName.CName, ((ifnull(financial2011.liabilities, 0) + ifnull(financial2010.liabilities, 0)) / (ifnull(enroll2011.enroll, 0) + ifnull(enroll2010.enroll, 0))) as TOTAL
+                                FROM CollegeName LEFT OUTER JOIN financial2010 ON CollegeName.CID=financial2010.CID 
+                                LEFT OUTER JOIN financial2011 ON CollegeName.CID=financial2011.CID 
+                                LEFT OUTER JOIN enroll2010 ON CollegeName.CID=enroll2010.CID 
+                                LEFT OUTER JOIN enroll2011 ON CollegeName.CID=enroll2011.CID 
+                                ORDER BY ((ifnull(financial2011.liabilities, 0) + ifnull(financial2010.liabilities, 0)) / (ifnull(enroll2011.enroll, 0) + ifnull(enroll2010.enroll, 0))) 
+                                DESC limit 25;");
+
+                        
+                                $STH->setFetchMode(PDO::FETCH_ASSOC);
+                                echo '<table>';
+                                echo '<tr><th>College Name</th><th>Liabilities per Student</th></tr>';
+                                while($row = $STH->fetch())
+                                {
+                                        echo '<tr>';
+                                        echo '<td>'.$row['CName'].'</td>';
+                                        echo '<td>'.$row['TOTAL'].'</td>';
+                                        echo '</tr>';
+                                }
+                                echo '</table>';
+                        }
+                        catch (PDOException $e)
+                        {
+                                echo $e->getMessage();
+                        }
+                }
+        }
+class question9 extends page
+        {
+                
+function get()
+	{
+		$this->content .= $this->menu();
+		$variable = $_GET['variable'];
+		$this->content .= $this->question9($variable);
+		
+		
+	}
+                
+             function question9($arg)
+                {
+                    $host='localhost';
+                    $user='kpw4';
+                    $pass='kpw4$1234';
+                    $dbname='kpw4';
+                        
+                        echo '<table>';
+                        echo '<tr>';
+                        echo '<td><a href=./collegeproject.php?page=question9&variable=CN>College Name</a></td>';
+                        echo '<td><a href=./collegeproject.php?page=question9&variable=En>Enrollment</a></td>';
+                        echo '<td><a href=./collegeproject.php?page=question9&variable=Lia>Liabilities</a></td>';
+                        echo '<td><a href=./collegeproject.php?page=question9&variable=As>Assets</a></td>';
+                        echo '<td><a href=./collegeproject.php?page=question9&variable=Rev>Revenues</a></td>';
+                        echo '<td><a href=./collegeproject.php?page=question9&variable=LPS>Liabilities Per Student</a></td>';
+                        echo '<td><a href=./collegeproject.php?page=question9&variable=APS>Assets Per Student</a></td>';
+                        echo '<td><a href=./collegeproject.php?page=question9&variable=RPS>Revenues Per Student</a></td>';
+                        echo '</tr>';
+                        
+                        try
+                        {
+                                $DBH = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);        
+                                $DBH->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);        
+                                switch($arg)
+                                {
+                                        case "CN":
+                                                $STH = $DBH->prepare
+                                                ('
+                                                        SELECT CollegeName.CName, enroll2011.enroll, financial2011.liabilities, financial2011.assets, financial2011.revenue, financial2011.liabilities/enroll2011.enroll, financial2011.assets/enroll2011.revenue,
+                                                        financial2011.revenue/enroll2011.enroll
+                                                        FROM CollegeName INNER JOIN enroll2011 ON CollegeName.CID = enroll2011.CID
+                                                        INNER JOIN financial2011 ON CollegeName.CID = financial2011.CID
+                                                        ORDER BY CollegeName.CName
+                                                        DESC
+                                                        LIMIT 5;
+                                                ');
+                                                break;
+                                        case "En":
+                                                $STH = $DBH->prepare
+                                                ('
+                                                        SELECT CollegeName.CID, CollegeName.CName, sum(ifnull(enroll2010.enroll,0) + ifnull(enroll2011.enroll,0)) as TOTAL, financial2011.liabilities, financial2011.assets, financial2011.revenue, financial2011.liabilities/enroll2011.enroll, financial2011.assets/enroll2011.revenue,
+                                                        financial2011.revenue/enroll2011.enroll  
+                                FROM CollegeName LEFT OUTER JOIN enroll2010 ON CollegeName.CID=enroll2010.CID 
+                                LEFT OUTER JOIN enroll2011 ON CollegeName.CID=enroll2011.CID 
+                                GROUP by CollegeName.CID, CollegeName.CName 
+                                ORDER by sum(ifnull(enroll2010.enroll,0) + ifnull(enroll2011.enroll,0)) 
+                                DESC limit 5;
+                                                       
+                                                ');
+                                                break;
+                                        case "Lia":
+                                                $STH = $DBH->prepare
+                                                ('
+                                                        SELECT CollegeName.CID, CollegeName.CName, sum(ifnull(financial2010.liabilities,0) + ifnull(financial2011.liabilities,0)) as TOTAL, enroll2011.enroll,financial2011.assets, financial2011.revenue, financial2011.liabilities/enroll2011.enroll, financial2011.assets/enroll2011.revenue,
+                                                        financial2011.revenue/enroll2011.enroll 
+                                FROM CollegeName LEFT OUTER JOIN financial2010 ON CollegeName.CID=financial2010.CID
+								LEFT OUTER JOIN financial2011 ON CollegeName.CID=financial2011.CID 
+								GROUP by CollegeName.CID, CollegeName.CName 
+								ORDER by sum(ifnull(financial2010.liabilities,0) + ifnull(financial2011.liabilities,0))
+							    DESC limit 5;
+                                                        
+                                                ');
+                                                break;
+                                        case "As":
+                                                $STH = $DBH->prepare
+                                                (
+                                                       "select CollegeName.CID, CollegeName.CName, sum(ifnull(financial2010.assets,0) + ifnull(financial2011.assets,0)) as TOTAL, enroll2011.enroll, financial2011.liabilities, financial2011.revenue, financial2011.liabilities/enroll2011.enroll, financial2011.assets/enroll2011.revenue,
+                                                        financial2011.revenue/enroll2011.enroll 
+                                FROM CollegeName LEFT OUTER JOIN financial2010 ON CollegeName.CID=financial2010.CID 
+                                LEFT OUTER JOIN financial2011 ON CollegeName.CID=financial2011.CID 
+                                GROUP by CollegeName.CID, CollegeName.CName 
+                                ORDER by sum(ifnull(financial2010.assets,0) + ifnull(financial2011.assets,0)) 
+                                DESC limit 5;"
+                                                        
+                                                );
+                                                break;
+                                        case "Rev":
+                                                $STH = $DBH->prepare
+                                               ("select CollegeName.CID, CollegeName.CName, sum(ifnull(financial2010.revenue,0) + ifnull(financial2011.revenue,0)) as TOTAL, enroll2011.enroll, financial2011.liabilities, financial2011.assets, financial2011.liabilities/enroll2011.enroll, financial2011.assets/enroll2011.revenue,
+                                                        financial2011.revenue/enroll2011.enroll 
+                                FROM CollegeName LEFT OUTER JOIN financial2010 ON CollegeName.CID=financial2010.CID 
+                                LEFT OUTER JOIN financial2011 ON CollegeName.CID=financial2011.CID 
+                                GROUP by CollegeName.CID, CollegeName.CName 
+                                ORDER by sum(ifnull(financial2010.revenue,0) + ifnull(financial2011.revenue,0)) 
+                                DESC limit 25;");
+                                
+                                                break;
+                                        case "LPS":
+                                                $STH = $DBH->prepare
+                                               ("SELECT CollegeName.CName, ((ifnull(financial2011.liabilities, 0) + ifnull(financial2010.liabilities, 0)) / (ifnull(enroll2011.enroll, 0) + ifnull(enroll2010.enroll, 0))) as TOTAL
+                                FROM CollegeName LEFT OUTER JOIN financial2010 ON CollegeName.CID=financial2010.CID 
+                                LEFT OUTER JOIN financial2011 ON CollegeName.CID=financial2011.CID 
+                                LEFT OUTER JOIN enroll2010 ON CollegeName.CID=enroll2010.CID 
+                                LEFT OUTER JOIN enroll2011 ON CollegeName.CID=enroll2011.CID 
+                                ORDER BY ((ifnull(financial2011.liabilities, 0) + ifnull(financial2010.liabilities, 0)) / (ifnull(enroll2011.enroll, 0) + ifnull(enroll2010.enroll, 0))) 
+                                DESC limit 25;");
+                                                break;
+                                        case "APS":
+                                                $STH = $DBH->prepare
+                                                ("SELECT CollegeName.CName, ((ifnull(financial2011.assets, 0) + ifnull(financial2010.assets, 0)) / (ifnull(enroll2011.enroll, 0) + ifnull(enroll2010.enroll, 0))) as TOTAL
+                                FROM CollegeName LEFT OUTER JOIN financial2010 ON CollegeName.CID=financial2010.CID 
+                                LEFT OUTER JOIN financial2011 ON CollegeName.CID=financial2011.CID 
+                                LEFT OUTER JOIN enroll2010 ON CollegeName.CID=enroll2010.CID 
+                                LEFT OUTER JOIN enroll2011 ON CollegeName.CID=enroll2011.CID 
+                                ORDER BY ((ifnull(financial2011.assets, 0) + ifnull(financial2010.assets, 0)) / (ifnull(enroll2011.enroll, 0) + ifnull(enroll2010.enroll, 0))) 
+                                DESC limit 25;");
+                                                break;
+                                        case "RPS":
+                                                $STH = $DBH->prepare
+                                                ("SELECT CollegeName.CName, ((ifnull(financial2011.revenue, 0) + ifnull(financial2010.revenue, 0)) / (ifnull(enroll2011.enroll, 0) + ifnull(enroll2010.enroll, 0))) as TOTAL
+                                FROM CollegeName LEFT OUTER JOIN financial2010 ON CollegeName.CID=financial2010.CID 
+                                LEFT OUTER JOIN financial2011 ON CollegeName.CID=financial2011.CID 
+                                LEFT OUTER JOIN enroll2010 ON CollegeName.CID=enroll2010.CID 
+                                LEFT OUTER JOIN enroll2011 ON CollegeName.CID=enroll2011.CID 
+                                ORDER BY ((ifnull(financial2011.revenue, 0) + ifnull(financial2010.revenue, 0)) / (ifnull(enroll2011.enroll, 0) + ifnull(enroll2010.enroll, 0))) 
+                                DESC limit 25;");
+                                                break;
+                                        
+                                }
+                                
+                                $STH->execute();
+								$STH->setFetchMode(PDO::FETCH_ASSOC);
+								echo '<table>';
+                                echo '<tr><th>College Name</th><th>State</th></tr>';
+                                while($row = $STH->fetch())
+                                {
+                                        echo '<tr>';
+                                        echo '<td>'.$row['CName'].'</td>';
+                                        echo '<td>'.$row['enroll'].'</td>';
+                                        echo '<td>'.$row['liabilities'].'</td>';
+                                        echo '<td>'.$row['assets'].'</td>';
+                                        echo '<td>'.$row['revenue'].'</td>';
+                                        echo '<td>'.$row['financial2011.liabilities/enroll2011.enroll'].'</td>';
+										echo '<td>'.$row['financial2011.assets/enroll2011.enroll'].'</td>';
+										echo '<td>'.$row['financial2011.revenue/enroll2011.enroll'].'</td>';
+										echo '</tr>';
+								}
+                                echo '</table>';
+                        }
+                        catch (PDOException $e)
+                        {
+                                echo $e->getMessage();
+                        }
+                        
+                }
+        }
+class question10 extends page
+        {
+                
+              function __destruct()
+                {
+                        
+                }
+                function get()
+                {
+                        $this->content .= $this->menu();        
+                        echo $this->content;        
+                        $this->Form10();
+                }
+                
+                function Form10()
+                {
+                        echo '<form action="collegeproject.php?page=question10" method="post"
+                              <p>
+                              <h3>Select College by State</h3>
+                              <LABEL for="State">State: </LABEL>
+                                  <INPUT type="text" name="State" id="State"><BR>
+                                  <INPUT type="submit" value="Send"> <INPUT type="reset">
+                              </p>
+                              </form>';
+                }
+                function post()
+                {
+                        
+                        $this->query10($_POST['State']);
+                }
+                function query10($State)
+                {
+                        
+                        $host='localhost';
+                        $dbname='kpw4';
+                        $user='kpw4';
+                        $pass='kpw4$1234';
+                        
+                        
+                        try
+                        {
+                                $DBH = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);        
+                                $DBH->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);        
+                                
+                                $STH = $DBH->prepare('SELECT CName, State 
+                                FROM CollegeName 
+                                WHERE State = :State');
+                                $STH->bindParam(':State', $State);
+                                $STH->execute();
+                                 
+                                echo '<table>';
+                                echo '<tr><th>College Name</th><th>State</th></tr>';
+                                while($row = $STH->fetch())
+                                {
+                                        echo '<tr>';
+                                        echo '<td>'.$row['CName'].'</td>';
+                                        echo '<td>'.$row['State'].'</td>';
+                                        echo '</tr>';
+                                }
+                                echo '</table>';
+                        }
+                        catch (PDOException $e)
+                        {
+                                echo $e->getMessage();
+                        }
+                        
+                        echo '<a href=./collegeproject.php?page=question10>Question 10</a>';
+                }
+        }
+class question11 extends page
+        {
+               
+             function get()
+                {
+                        
+                        $this->content .= $this->menu();
+                        $this->content .= $this->question11();
+                }
+               
+             function question11()
+                {
+                    $host='localhost';
+                    $user='kpw4';
+                    $pass='kpw4$1234';
+                    $dbname='kpw4';
+                        try
+                        {
+                                $DBH = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);        
+                                $DBH->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);        
+                                $STH = $DBH->query("SELECT DISTINCT CollegeName.CName, 1-(financial2010.liabilities/financial2011.liabilities) 
+                                FROM CollegeName LEFT OUTER JOIN financial2010 ON CollegeName.CID = financial2010.CID 
+                                LEFT OUTER JOIN  financial2011 ON CollegeName.CID = financial2011.CID 
+                                ORDER BY 1-(financial2010.liabilities/financial2011.liabilities) 
+                                DESC LIMIT 25");
+
+                        
+                                $STH->setFetchMode(PDO::FETCH_ASSOC);
+                                echo '<table>';
+                                echo '<tr><th>College Name</th><th>Largest percent increase in Total Liabilities between 2011 to 2010</th></tr>';
+                                while($row = $STH->fetch())
+                                {
+                                        echo '<tr>';
+                                        $percent = $row['1-(financial2010.liabilities/financial2011.liabilities)'] * 100;
+                                        echo '<td>'.$row['CName'].'</td>';
+                                        echo '<td>'.$percent.'%</td>';
+                                        echo '</tr>';
+                                }
+                                echo '</table>';
+                        }
+                        catch (PDOException $e)
+                        {
+                                echo $e->getMessage();
+                        }
+                }
+        }
+class question12 extends page
+        {
+                
+	function get(){
+                        $this->content .= $this->menu();
+                        $this->content .= $this->question12();
+                   }
+                
+             function question12()
+                {
+                    $host='localhost';
+                    $user='kpw4';
+                    $pass='kpw4$1234';
+                    $dbname='kpw4';
+                        try
+                        {
+                                $DBH = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);        
+                                $DBH->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);        
+                                $STH = $DBH->query("SELECT DISTINCT CollegeName.CName, 1-(enroll2010.enroll/enroll2011.enroll) 
+                                FROM CollegeName LEFT OUTER JOIN enroll2010 ON CollegeName.CID = enroll2010.CID 
+                                LEFT OUTER JOIN  enroll2011 ON CollegeName.CID = enroll2011.CID 
+                                ORDER BY 1-(enroll2010.enroll/enroll2011.enroll) 
+                                DESC LIMIT 25");
+
+                        
+                                $STH->setFetchMode(PDO::FETCH_ASSOC);
+                                echo '<table>';
+                                echo '<tr><th>College Name</th><th>Largest percent increase in Total enrollment between 2011 to 2010</th></tr>';
+                                while($row = $STH->fetch())
+                                {
+                                        echo '<tr>';
+                                        $percent = $row['1-(enroll2010.enroll/enroll2011.enroll)'] * 100;
+                                        echo '<td>'.$row['CName'].'</td>';
+                                        echo '<td>'.$percent.'%</td>';
+                                        echo '</tr>';
+                                }
+                                echo '</table>';
+                        }
+                        catch (PDOException $e)
+                        {
+                                echo $e->getMessage();
+                        }
+                }
+        }
+
+?>
